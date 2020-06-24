@@ -37,7 +37,7 @@ The deployed architecture will look like below
 
   - <b>Connectivity from Hub region 1 web to db</b>: Testing connectivity checks from VMs with in Hub VNET
 
-  [![Visualize Connection Monitor](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Finfosatheesh2020%2FConnectionMonitor2%2Fmaster%2Fazuredeploy.json)
+  [![Visualize Connection Monitor](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Finfosatheesh2020%2FConnectionMonitor2%2Fmaster%2FConnectionMonitor.json)
 
 
 If you are new to Azure Connection Monitor and Network Insights, see:
