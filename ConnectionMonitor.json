@@ -1,0 +1,237 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "networkWatchers_NetworkWatcher_region_name": {
+      "defaultValue": "NetworkWatcher_eastus",
+      "type": "string"
+    },
+    "virtualMachines_r1_web_externalid": {
+      "defaultValue": "/subscriptions/c0d678c5-3792-47c7-b596-ab9999999999/resourceGroups/MC_msk-AKS_mskaksdemo_eastus/providers/Microsoft.Compute/virtualMachines/aks-agentpool-15347189-0",
+      "type": "string"
+    },
+    "virtualMachines_r1_db_externalid": {
+      "defaultValue": "/subscriptions/c0d678c5-3792-47c7-b596-ab9999999999/resourceGroups/msk/providers/Microsoft.Compute/virtualMachines/msksqlSrv16",
+      "type": "string"
+    },
+    "virtualMachines_r2_externalid": {
+      "defaultValue": "/subscriptions/c0d678c5-3792-47c7-b596-ab9999999999/resourceGroups/MC_msk-AKS_mskaksdemo_eastus/providers/Microsoft.Compute/virtualMachines/aks-agentpool-15347189-0",
+      "type": "string"
+    },
+    "virtualMachines_onprem_name": {
+      "defaultValue": "onprem-WinVM1",
+      "type": "string"
+    },
+    "virtualMachines_onprem_fqdn": {
+      "defaultValue": "10.9.0.4",
+      "type": "string"
+    },
+    "loganalytics_workspace_externalid": {
+      "defaultValue": "/subscriptions/c0d678c5-3792-47c7-b596-ab9999999999/resourceGroups/msk/providers/Microsoft.OperationalInsights/workspaces/mskhacklogworkspace",
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkWatchers/connectionMonitors",
+      "apiVersion": "2020-04-01",
+      "name": "[concat(parameters('networkWatchers_NetworkWatcher_region_name'), '/ConnectionMonitor-Demo')]",
+      "location": "eastus",
+      "properties": {
+        "endpoints": [
+          {
+            "name": "region1-hub-webserver",
+            "resourceId": "[parameters('virtualMachines_r1_web_externalid')]"
+          },
+          {
+            "name": "region1-hub-dbserver",
+            "resourceId": "[parameters('virtualMachines_r1_db_externalid')]"
+          },
+          {
+            "name": "region2-server",
+            "resourceId": "[parameters('virtualMachines_r2_externalid')]"
+          },
+          {
+            "name": "onprem-server",
+            "resourceId": "[parameters('loganalytics_workspace_externalid')]",
+            "filter": {
+              "items": [
+                {
+                  "type": "AgentAddress",
+                  "address": "[parameters('virtualMachines_onprem_name')]"
+                }
+              ]
+            }
+          },
+          {
+            "name": "Bing",
+            "address": "www.bing.com"
+          },
+          {
+            "name": "Google",
+            "address": "www.google.co.in"
+          },
+          {
+            "name": "onprem-endpoint",
+            "address": "[parameters('virtualMachines_onprem_fqdn')]"
+          }
+        ],
+        "testConfigurations": [
+          {
+            "name": "http",
+            "testFrequencySec": 30,
+            "protocol": "HTTP",
+            "successThreshold": {
+              "checksFailedPercent": 50,
+              "roundTripTimeMs": 1000
+            }
+          },
+          {
+            "name": "icmpEnabled",
+            "testFrequencySec": 30,
+            "protocol": "ICMP",
+            "successThreshold": {
+              "checksFailedPercent": 50,
+              "roundTripTimeMs": 1000
+            }
+          },
+          {
+            "name": "icmpDisabled",
+            "testFrequencySec": 30,
+            "protocol": "ICMP",
+            "icmpConfiguration": {
+              "disableTraceRoute": true
+            },
+            "successThreshold": {
+              "checksFailedPercent": 50,
+              "roundTripTimeMs": 1000
+            }
+          },
+          {
+            "name": "tcpEnabled",
+            "testFrequencySec": 30,
+            "protocol": "TCP",
+            "tcpConfiguration": {
+              "port": 80
+            },
+            "successThreshold": {
+              "checksFailedPercent": 50,
+              "roundTripTimeMs": 1000
+            }
+          },
+          {
+            "name": "tcpDisabled",
+            "testFrequencySec": 30,
+            "protocol": "TCP",
+            "tcpConfiguration": {
+              "port": 80,
+              "disableTraceRoute": true
+            },
+            "successThreshold": {
+              "checksFailedPercent": 50,
+              "roundTripTimeMs": 1000
+            }
+          },
+          {
+            "name": "tcpEnabled1433",
+            "testFrequencySec": 30,
+            "protocol": "TCP",
+            "tcpConfiguration": {
+              "port": 1433
+            },
+            "successThreshold": {
+              "checksFailedPercent": 50,
+              "roundTripTimeMs": 1000
+            }
+          },
+          {
+            "name": "tcpDisabled1433",
+            "testFrequencySec": 30,
+            "protocol": "TCP",
+            "tcpConfiguration": {
+              "port": 1433,
+              "disableTraceRoute": true
+            },
+            "successThreshold": {
+              "checksFailedPercent": 50,
+              "roundTripTimeMs": 1000
+            }
+          }
+        ],
+        "testGroups": [
+          {
+            "name": "Connectivity to Bing and Google",
+            "testConfigurations": [
+              "http",
+              "tcpEnabled",
+              "tcpDisabled",
+              "icmpEnabled",
+              "icmpDisabled"
+            ],
+            "sources": [
+              "region1-hub-webserver",
+              "region1-hub-dbserver",
+              "onprem-server"
+            ],
+            "destinations": [
+              "Bing",
+              "Google"
+            ]
+          },
+          {
+            "name": "Connectivity from Hub region 1 to region 2",
+            "testConfigurations": [
+              "http",
+              "tcpEnabled",
+              "icmpEnabled"
+            ],
+            "sources": [
+              "region1-hub-webserver",
+              "region1-hub-dbserver"
+            ],
+            "destinations": [
+              "region2-server"
+            ]
+          },
+          {
+            "name": "Connectivity from Hub region 1 to On-prem",
+            "testConfigurations": [
+              "http",
+              "tcpEnabled",
+              "icmpEnabled"
+            ],
+            "sources": [
+              "region1-hub-webserver"
+            ],
+            "destinations": [
+              "onprem-endpoint"
+            ]
+          },
+          {
+            "name": "Connectivity from Hub region 1 web to db",
+            "testConfigurations": [
+              "tcpEnabled1433",
+              "tcpDisabled1433",
+              "icmpEnabled"
+            ],
+            "sources": [
+              "region1-hub-webserver"
+            ],
+            "destinations": [
+              "region1-hub-dbserver"
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "type": "Workspace",
+            "workspaceSettings": {
+              "workspaceResourceId": "[parameters('loganalytics_workspace_externalid')]"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
