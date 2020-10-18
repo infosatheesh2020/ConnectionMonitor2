@@ -114,7 +114,7 @@
     "onprem-vnet1-subnet1-subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('onprem-vnet1-Name'), variables('onprem-vnet1-subnet1'))]",
     "onprem-vnet1-GwSubnet-subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('onprem-vnet1-Name'), variables('onprem-vnet1-GwSubnet'))]",
     "onprem-networkSecurityGroup1-Name": "onprem-default-NSG",
-    "workspaceName": "[concat(uniquestring(resourceGroup().id), '-la65-worspace')]",
+    "workspaceName": "[concat(uniquestring(resourceGroup().id), '-la65-workspace')]",
     "solutionTypes": "NetworkMonitoring",
     "vpn-r1-onprem-connectionName": "vpn-r1-to-onprem",
     "vpn-onprem-r1-connectionName": "vpn-onprem-to-r1",
